@@ -578,6 +578,14 @@ class ShakaDemoMain {
         }
       }
 
+      if ('assetHasFilters' in params) {
+        // Process a synthetic error about attempting to load an invalid asset.
+        const severity = shaka.util.Error.Severity.RECOVERABLE;
+        const message = 'Cannot load assets with custom filters from hash!';
+        this.handleError_(severity, message, '');
+        return null;
+      }
+
       // Construct a new asset.
       const asset = new ShakaDemoAssetInfo(
           /* name= */ 'loaded asset',
@@ -970,20 +978,30 @@ class ShakaDemoMain {
     params.push('uilang=' + this.getUILocale());
 
     if (this.selectedAsset) {
-      const isDefault = shakaAssets.testAssets.includes(this.selectedAsset);
-      params.push('asset=' + this.selectedAsset.manifestUri);
-      if (!isDefault && this.selectedAsset.licenseServers.size) {
-        const uri = this.selectedAsset.licenseServers.values().next().value;
-        params.push('license=' + uri);
-        for (const drmSystem of this.selectedAsset.licenseServers.keys()) {
-          if (!ShakaDemoMain.commonDrmSystems.includes(drmSystem)) {
-            params.push('drmSystem=' + drmSystem);
-            break;
+      const selectedAsset = this.selectedAsset;
+      const isDefault = shakaAssets.testAssets.includes(selectedAsset);
+
+      params.push('asset=' + selectedAsset.manifestUri);
+
+      if (!isDefault) {
+        if (selectedAsset.licenseServers.size) {
+          // For custom assets, all key systems will have the same license
+          // server, so it's okay to just check the first.
+          const uri = selectedAsset.licenseServers.values().next().value;
+          params.push('license=' + uri);
+          for (const drmSystem of selectedAsset.licenseServers.keys()) {
+            if (!ShakaDemoMain.commonDrmSystems.includes(drmSystem)) {
+              params.push('drmSystem=' + drmSystem);
+              break;
+            }
           }
         }
-      }
-      if (!isDefault && this.selectedAsset.certificateUri) {
-        params.push('certificate=' + this.selectedAsset.certificateUri);
+        if (selectedAsset.certificateUri) {
+          params.push('certificate=' + this.selectedAsset.certificateUri);
+        }
+        if (selectedAsset.requestFilter || selectedAsset.responseFilter) {
+          params.push('assetHasFilters');
+        }
       }
     }
 

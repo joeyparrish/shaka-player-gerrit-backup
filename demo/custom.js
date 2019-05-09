@@ -246,6 +246,17 @@ class ShakaDemoCustom {
     };
     makeField('Name', nameSetup, nameOnChange);
 
+    const filterSection = new ShakaDemoInputContainer(
+        inputDiv, 'Filters', ShakaDemoInputContainer.Style.ACCORDION);
+    // TODO: make input fields for requestFilter and responseFilter
+    // these should be in filterSection, and entered into as a text box
+    // so the user enters the code into the panel
+    // and then that filter is added via code eval methods
+    // TODO: provide a template for each type of filter, so that the user
+    // doesn't need to write any broilerplate
+    // TODO: make sure these templates aren't counted as actual code, so that
+    // the asset isn't loaded up with empty shells of filters
+
     // Make the icon field.
     const iconSetup = (input, container) => {
       if (assetInProgress.iconUri) {
