@@ -15,15 +15,18 @@
  * limitations under the License.
  */
 
+goog.provide('ShakaDemoCustom');
+
+goog.require('ShakaDemoAssetCard');
 
 /** @type {?ShakaDemoCustom} */
 let shakaDemoCustom;
 
-
 /**
  * Shaka Player demo, custom asset page layout.
+ * @final
  */
-class ShakaDemoCustom {
+const ShakaDemoCustom = class {
   /**
    * Register the page configuration.
    */
@@ -45,10 +48,12 @@ class ShakaDemoCustom {
     /** @private {!Set.<!ShakaDemoAssetInfo>} */
     this.assets_ = this.loadAssetInfos_();
 
-    /** @private {!Array.<!AssetCard>} */
+    /** @private {!Array.<!ShakaDemoAssetCard>} */
     this.assetCards_ = [];
-    this.savedList_ = document.createElement('div');
-    container.appendChild(this.savedList_);
+
+    /** @private {!Element} */
+    this.assetCardDiv_ = document.createElement('div');
+    container.appendChild(this.assetCardDiv_);
 
     // Add the "new" button, which shows the dialog.
     const addButtonContainer = document.createElement('div');
@@ -67,7 +72,7 @@ class ShakaDemoCustom {
       this.updateOfflineProgress_();
     });
     document.addEventListener('shaka-main-page-changed', () => {
-      if (!this.savedList_.childNodes.length &&
+      if (!this.assetCardDiv_.childNodes.length &&
           !container.classList.contains('hidden')) {
         // Now that the page is showing, create the contents that we deferred
         // until now.
@@ -352,12 +357,11 @@ class ShakaDemoCustom {
 
   /**
    * @param {!ShakaDemoAssetInfo} asset
-   * @return {!AssetCard}
+   * @return {!ShakaDemoAssetCard}
    * @private
    */
   createAssetCardFor_(asset) {
-    const savedList = this.savedList_;
-    return new AssetCard(savedList, asset, /* isFeatured = */ false, (c) => {
+    const cardCallback = (c) => {
       c.addButton('Play', () => {
         shakaDemoMain.loadAsset(asset);
         this.updateSelected_();
@@ -377,7 +381,9 @@ class ShakaDemoCustom {
         this.remakeSavedList_();
       });
       c.addStoreButton();
-    });
+    };
+    return new ShakaDemoAssetCard(
+        this.assetCardDiv_, asset, /* isFeatured = */ false, cardCallback);
   }
 
   /**
@@ -392,7 +398,7 @@ class ShakaDemoCustom {
 
   /** @private */
   remakeSavedList_() {
-    shaka.ui.Utils.removeAllChildren(this.savedList_);
+    shaka.ui.Utils.removeAllChildren(this.assetCardDiv_);
 
     if (this.assets_.size == 0) {
       // Add in a message telling you what to do.
@@ -401,7 +407,7 @@ class ShakaDemoCustom {
         textElement.classList.add('mdl-typography--' + textClass);
         // TODO: Localize these messages.
         textElement.textContent = text;
-        this.savedList_.appendChild(textElement);
+        this.assetCardDiv_.appendChild(textElement);
       };
       makeMessage('title',
           'Try Shaka Player with your own content!');
@@ -417,15 +423,15 @@ class ShakaDemoCustom {
       this.updateSelected_();
     }
   }
-}
-
+};
 
 /**
  * The name of the field in window.localStorage that is used to store a user's
  * custom assets.
- * @const {string}
+ *
+ * @const
+ * @private {string}
  */
 ShakaDemoCustom.saveId_ = 'shakaPlayerDemoSavedAssets';
-
 
 document.addEventListener('shaka-main-loaded', ShakaDemoCustom.init);

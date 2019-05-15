@@ -69,9 +69,6 @@ def compile_demo(force, is_debug):
   # TODO: Why do we always use debug_closure_opts?  Nobody remembers.
   closure_opts = build.common_closure_opts + build.debug_closure_opts
   closure_opts += [
-      # Ignore missing goog.require since we assume the whole library is
-      # already included.
-      '--jscomp_off=missingRequire', '--jscomp_off=strictMissingRequire',
       '-D', 'COMPILED=true',
   ]
 
@@ -122,9 +119,6 @@ def compile_receiver(force, is_debug):
   # TODO: Why do we always use debug_closure_opts?  Nobody remembers.
   closure_opts = build.common_closure_opts + build.debug_closure_opts
   closure_opts += [
-      # Ignore missing goog.require since we assume the whole library is
-      # already included.
-      '--jscomp_off=missingRequire', '--jscomp_off=strictMissingRequire',
       '-D', 'COMPILED=true',
   ]
 

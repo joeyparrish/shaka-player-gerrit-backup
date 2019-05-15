@@ -15,10 +15,13 @@
  * limitations under the License.
  */
 
+goog.provide('ShakaDemoTooltips');
+
 /**
  * Creates and contains the MDL elements of a tooltip.
+ * @final
  */
-class ShakaDemoTooltips {
+const ShakaDemoTooltips = class {
   /**
    * @param {!Element} parentDiv
    * @param {!Element} labeledElement
@@ -43,7 +46,7 @@ class ShakaDemoTooltips {
     ShakaDemoTooltips.lastId_ += 1;
     return 'tooltip-labeled-' + idNumber;
   }
-}
+};
 
 /** @private {number} */
 ShakaDemoTooltips.lastId_ = 0;

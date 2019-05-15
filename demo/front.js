@@ -15,15 +15,18 @@
  * limitations under the License.
  */
 
+goog.provide('ShakaDemoFront');
+
+goog.require('ShakaDemoAssetCard');
 
 /** @type {?ShakaDemoFront} */
 let shakaDemoFront;
 
-
 /**
  * Shaka Player demo, front page layout.
+ * @final
  */
-class ShakaDemoFront {
+const ShakaDemoFront = class {
   /**
    * Register the page configuration.
    */
@@ -34,7 +37,7 @@ class ShakaDemoFront {
 
   /** @param {!Element} container */
   constructor(container) {
-    /** @private {!Array.<!AssetCard>} */
+    /** @private {!Array.<!ShakaDemoAssetCard>} */
     this.assetCards_ = [];
 
     /** @private {!Element} */
@@ -114,11 +117,11 @@ class ShakaDemoFront {
   /**
    * @param {!ShakaDemoAssetInfo} asset
    * @param {!Element} container
-   * @return {!AssetCard}
+   * @return {!ShakaDemoAssetCard}
    * @private
    */
   createAssetCardFor_(asset, container) {
-    return new AssetCard(container, asset, /* isFeatured = */ true, (c) => {
+    const cardCallback = (c) => {
       const unsupportedReason = shakaDemoMain.getAssetUnsupportedReason(
           asset, /* needOffline= */ false);
       if (unsupportedReason) {
@@ -130,7 +133,9 @@ class ShakaDemoFront {
         });
         c.addStoreButton();
       }
-    });
+    };
+    return new ShakaDemoAssetCard(
+        container, asset, /* isFeatured = */ true, cardCallback);
   }
 
   /**
@@ -152,7 +157,6 @@ class ShakaDemoFront {
       card.selectByAsset(shakaDemoMain.selectedAsset);
     }
   }
-}
-
+};
 
 document.addEventListener('shaka-main-loaded', ShakaDemoFront.init);

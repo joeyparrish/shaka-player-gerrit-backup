@@ -15,15 +15,24 @@
  * limitations under the License.
  */
 
+goog.provide('ShakaDemoSearch');
+
+goog.require('ShakaDemoAssetCard');
+goog.require('ShakaDemoBoolInput');
+goog.require('ShakaDemoInputContainer');
+goog.require('ShakaDemoSelectInput');
+
+goog.require('shakaAssets');
+goog.require('shakaDemoMain');
 
 /** @type {?ShakaDemoSearch} */
 let shakaDemoSearch;
 
-
 /**
  * Shaka Player demo, feature discovery page layout.
+ * @final
  */
-class ShakaDemoSearch {
+const ShakaDemoSearch = class {
   /**
    * Register the page configuration.
    */
@@ -45,7 +54,7 @@ class ShakaDemoSearch {
 
     this.makeSearchDiv_(container);
 
-    /** @private {!Array.<!AssetCard>} */
+    /** @private {!Array.<!ShakaDemoAssetCard>} */
     this.assetCards_ = [];
 
     this.resultsDiv_ = document.createElement('div');
@@ -69,12 +78,12 @@ class ShakaDemoSearch {
 
   /**
    * @param {!ShakaDemoAssetInfo} asset
-   * @return {!AssetCard}
+   * @return {!ShakaDemoAssetCard}
    * @private
    */
   createAssetCardFor_(asset) {
     const resultsDiv = this.resultsDiv_;
-    return new AssetCard(resultsDiv, asset, /* isFeatured = */ false, (c) => {
+    const cardCallback = (c) => {
       const unsupportedReason = shakaDemoMain.getAssetUnsupportedReason(
           asset, /* needOffline= */ false);
       if (unsupportedReason) {
@@ -86,7 +95,9 @@ class ShakaDemoSearch {
         });
         c.addStoreButton();
       }
-    });
+    };
+    return new ShakaDemoAssetCard(
+        resultsDiv, asset, /* isFeatured = */ false, cardCallback);
   }
 
   /**
@@ -322,12 +333,10 @@ class ShakaDemoSearch {
       return true;
     });
   }
-}
-
+};
 
 /** @typedef {shakaAssets.Feature|shakaAssets.Source} */
 ShakaDemoSearch.SearchTerm;
-
 
 /** @enum {string} */
 ShakaDemoSearch.TermType = {
@@ -335,6 +344,5 @@ ShakaDemoSearch.TermType = {
   DRM: 'DRM',
   SOURCE: 'Source',
 };
-
 
 document.addEventListener('shaka-main-loaded', ShakaDemoSearch.init);

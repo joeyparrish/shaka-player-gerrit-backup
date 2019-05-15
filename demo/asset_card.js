@@ -15,18 +15,21 @@
  * limitations under the License.
  */
 
+goog.provide('ShakaDemoAssetCard');
+
+goog.require('ShakaDemoTooltips');
 
 /**
  * Creates and contains an MDL card that presents info about the given asset.
  * @final
  */
-class AssetCard {
+const ShakaDemoAssetCard = class {
   /**
    * @param {!Element} parentDiv
    * @param {!ShakaDemoAssetInfo} asset
    * @param {boolean} isFeatured True if this card should use the "featured"
    *   style, which use the asset's short name and have descriptions.
-   * @param {function(!AssetCard)} remakeButtonsFn
+   * @param {function(!ShakaDemoAssetCard)} remakeButtonsFn
    */
   constructor(parentDiv, asset, isFeatured, remakeButtonsFn) {
     /** @private {!Element} */
@@ -39,7 +42,7 @@ class AssetCard {
     this.featureIconsContainer_ = document.createElement('div');
     /** @private {!Element} */
     this.progressBar_ = document.createElement('progress');
-    /** @private {function(!AssetCard)} */
+    /** @private {function(!ShakaDemoAssetCard)} */
     this.remakeButtonsFn_ = remakeButtonsFn;
 
     // Lay out the card.
@@ -304,4 +307,4 @@ class AssetCard {
     this.actions_.appendChild(button);
     return button;
   }
-}
+};

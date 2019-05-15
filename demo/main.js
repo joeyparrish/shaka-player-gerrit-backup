@@ -15,13 +15,23 @@
  * limitations under the License.
  */
 
+goog.provide('ShakaDemoMain');
+goog.provide('shakaDemoMain');
+// TODO: replace shakaDemoMain with a static instance method
+
+goog.require('ShakaDemoAssetInfo');
+goog.require('ShakaDemoCloseButton');
+goog.require('ShakaDemoUtils');
+goog.require('goog.asserts');
+
 /**
  * Shaka Player demo, main section.
  * This controls the header and the footer, and contains all methods that should
  * be shared by multiple page layouts (loading assets, setting/checking
  * configuration, etc).
+ * @final
  */
-class ShakaDemoMain {
+const ShakaDemoMain = class {
   constructor() {
     /** @private {HTMLMediaElement} */
     this.video_ = null;
@@ -175,7 +185,8 @@ class ShakaDemoMain {
     this.player_ = ui.getControls().getPlayer();
 
     // Register custom controls to the UI.
-    shaka.ui.Controls.registerElement('close', new CloseButton.Factory());
+    shaka.ui.Controls.registerElement(
+        'close', new ShakaDemoCloseButton.Factory());
 
     // Configure UI.
     const uiConfig = ui.getConfiguration();
@@ -203,7 +214,8 @@ class ShakaDemoMain {
 
     // Listen to events on controls.
     this.controls_ = ui.getControls();
-    this.controls_.addEventListener('error', shakaDemoMain.onErrorEvent_);
+    this.controls_.addEventListener(
+        'error', (event) => this.onErrorEvent_(event));
     this.controls_.addEventListener('caststatuschanged', (event) => {
       this.onCastStatusChange_(event['newStatus']);
     });
@@ -855,7 +867,7 @@ class ShakaDemoMain {
     } else {
       this.player_.configure('drm.advanced', config.drm.advanced);
     }
-    shakaDemoMain.remakeHash();
+    this.remakeHash();
   }
 
   /**
@@ -1237,8 +1249,7 @@ class ShakaDemoMain {
   onCastStatusChange_(connected) {
     // TODO: Handle.
   }
-}
-
+};
 
 /** @type {!Array.<string>} */
 ShakaDemoMain.commonDrmSystems = [
@@ -1249,17 +1260,12 @@ ShakaDemoMain.commonDrmSystems = [
   'org.w3.clearkey',
 ];
 
-
-const shakaDemoMain = new ShakaDemoMain();
-
-
 /**
  * @private
  * @const {string}
  */
 ShakaDemoMain.mainPoster_ =
     'https://shaka-player-demo.appspot.com/assets/poster.jpg';
-
 
 /**
  * @private
@@ -1269,26 +1275,31 @@ ShakaDemoMain.audioOnlyPoster_ =
     'https://shaka-player-demo.appspot.com/assets/audioOnly.gif';
 
 
-// If setup fails and the global error handler does, too, (as happened on IE
-// right before the launch of this demo), at least log that error to the console
-// for debugging.  Wrap init functions in an async function with a try/catch to
-// make sure no error goes unseen when debugging.
+/** @type {ShakaDemoMain} */
+const shakaDemoMain = new ShakaDemoMain();
+
 /**
+ * If setup fails and the global error handler does, too, (as happened on IE
+ * right before the launch of this demo), at least log that error to the console
+ * for debugging.  Wrap init functions in an async function with a try/catch to
+ * make sure no error goes unseen when debugging.
+ *
  * @param {function()} initFn
  * @return {!Promise}
  * @suppress {accessControls}
  */
-ShakaDemoMain.initWrapper = async (initFn) => {
+async function initWrapper(initFn) {
   try {
     await initFn();
   } catch (error) {
     shakaDemoMain.onError_(error);
     console.error(error);
   }
-};
+}
+
 document.addEventListener('shaka-ui-loaded', () => {
-  ShakaDemoMain.initWrapper(() => shakaDemoMain.init());
+  initWrapper(() => shakaDemoMain.init());
 });
 document.addEventListener('shaka-ui-load-failed', (event) => {
-  ShakaDemoMain.initWrapper(() => shakaDemoMain.initFailed());
+  initWrapper(() => shakaDemoMain.initFailed());
 });

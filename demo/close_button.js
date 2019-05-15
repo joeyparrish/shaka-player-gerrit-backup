@@ -15,14 +15,16 @@
  * limitations under the License.
  */
 
+goog.provide('ShakaDemoCloseButton');
 
 /**
  * A custom UI button, to allow users to close the video element.
  * This cannot actually extend shaka.ui.Element, as that class does not exist
  * at load-time when in uncompiled mode.
  * @implements {shaka.extern.IUIElement}
+ * @final
  */
-class CloseButton {
+const ShakaDemoCloseButton = class {
   /**
    * @param {!HTMLElement} parent
    * @param {!shaka.ui.Controls} controls
@@ -55,16 +57,16 @@ class CloseButton {
   destroy() {
     return Promise.resolve();
   }
-}
+};
 
 /**
  * @implements {shaka.extern.IUIElement.Factory}
  * @final
  */
-CloseButton.Factory = class {
+ShakaDemoCloseButton.Factory = class {
   /** @override */
   create(rootElement, controls) {
-    return new CloseButton(rootElement, controls);
+    return new ShakaDemoCloseButton(rootElement, controls);
   }
 };
 

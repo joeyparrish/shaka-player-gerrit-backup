@@ -40,7 +40,7 @@ digraph new_demo {
 
     "ShakaDemoInput" [ shape = Msquare ]
     "ShakaDemoInputContainer" [ shape = Msquare ]
-    "AssetCard" [ shape = mSquare ]
+    "ShakaDemoAssetCard" [ shape = mSquare ]
   }
 
   # Dependencies on Shaka Player
@@ -62,7 +62,7 @@ digraph new_demo {
 
   # Dependencies on ShakaDemoAssetInfo
   ShakaAssets -> ShakaDemoAssetInfo [ style = dotted ]
-  AssetCard -> ShakaDemoAssetInfo [ style = dotted ]
+  ShakaDemoAssetCard -> ShakaDemoAssetInfo [ style = dotted ]
   ShakaDemoCustom -> ShakaDemoAssetInfo [ style = dotted ]
 
   # Dependencies on ShakaDemoInput
@@ -76,8 +76,8 @@ digraph new_demo {
   ShakaDemoConfig -> ShakaDemoInputContainer [ style = dotted ]
   ShakaDemoSearch -> ShakaDemoInputContainer [ style = dotted ]
 
-  # Dependencies on AssetCard
-  ShakaDemoSearch -> AssetCard [ style = dotted ]
-  ShakaDemoCustom -> AssetCard [ style = dotted ]
-  ShakaDemoFront -> AssetCard [ style = dotted ]
+  # Dependencies on ShakaDemoAssetCard
+  ShakaDemoSearch -> ShakaDemoAssetCard [ style = dotted ]
+  ShakaDemoCustom -> ShakaDemoAssetCard [ style = dotted ]
+  ShakaDemoFront -> ShakaDemoAssetCard [ style = dotted ]
 }

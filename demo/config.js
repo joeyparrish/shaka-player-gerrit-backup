@@ -15,15 +15,16 @@
  * limitations under the License.
  */
 
+goog.provide('ShakaDemoConfig');
 
 /** @type {?ShakaDemoConfig} */
 let shakaDemoConfig;
 
-
 /**
  * Shaka Player demo, configuration page layout.
+ * @final
  */
-class ShakaDemoConfig {
+const ShakaDemoConfig = class {
   /**
    * Register the page configuration.
    */
@@ -622,7 +623,6 @@ class ShakaDemoConfig {
         'Must have at least one section.');
     return this.sections_[this.sections_.length - 1];
   }
-}
-
+};
 
 document.addEventListener('shaka-main-loaded', ShakaDemoConfig.init);

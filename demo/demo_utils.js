@@ -15,8 +15,9 @@
  * limitations under the License.
  */
 
+goog.provide('ShakaDemoUtils');
 
-class ShakaDemoUtils {
+const ShakaDemoUtils = class {
   /**
    * Goes through the various values in shaka.extern.PlayerConfiguration, and
    * calls the given callback on them so that they can be stored to or read from
@@ -118,4 +119,4 @@ class ShakaDemoUtils {
       return false;
     }
   }
-}
+};

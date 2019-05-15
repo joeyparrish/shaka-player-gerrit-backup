@@ -16,14 +16,15 @@
  * limitations under the License.
  */
 
+goog.provide('shakaAssets');
 
 goog.require('ShakaDemoAssetInfo');
 
 
 // Types and enums {{{
 /**
- * A container for demo assets.
- * @class
+ * @namespace
+ * @description A container for demo assets.
  */
 const shakaAssets = {};
 
