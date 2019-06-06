@@ -811,7 +811,8 @@ shaka.extern.OfflineConfiguration;
  *   restrictions: shaka.extern.Restrictions,
  *   playRangeStart: number,
  *   playRangeEnd: number,
- *   textDisplayFactory: shaka.extern.TextDisplayer.Factory
+ *   textDisplayFactory: shaka.extern.TextDisplayer.Factory,
+ *   enableAnalytics: boolean
  * }}
  *
  * @property {shaka.extern.DrmConfiguration} drm
@@ -855,6 +856,9 @@ shaka.extern.OfflineConfiguration;
  * @property {shaka.extern.TextDisplayer.Factory} textDisplayFactory
  *   A factory to construct text displayer. Note that, if this is changed during
  *   playback, it will cause the text tracks to be reloaded.
+ * @property {boolean} enableAnalytics
+ *   If true, Shaka Player will check window.GoogleAnalyticsObject and fill out
+ *   QoE metrics on the appropriate function. Defaults to false.
  * @exportDoc
  */
 shaka.extern.PlayerConfiguration;

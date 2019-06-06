@@ -123,7 +123,7 @@ shakaDemo.Main = class {
       elementsToDisable.push(element);
     }
     // The hamburger menu close button is added programmatically by MDL, and
-    // thus isn't given our 'disableonfail' clas.
+    // thus isn't given our 'disableonfail' class.
     elementsToDisable.push(document.getElementsByClassName(
         'mdl-layout__drawer-button'));
     for (const element of elementsToDisable) {
@@ -274,11 +274,41 @@ shakaDemo.Main = class {
     });
   }
 
+  /**
+   * @private
+   * @return {string}
+   */
+  getAnalyticsAssetName_() {
+    const asset = this.selectedAsset;
+    let analyticsAssetName = asset.name;
+    if (asset.source == shakaAssets.Source.CUSTOM) {
+      // For reasons of privacy (and practicality), we do not collect the names
+      // of custom assets loaded.
+      // Instead, use one of several generic names that vaguely describe the
+      // asset.
+      const isClear = asset.drm.includes(shakaAssets.KeySystem.CLEAR);
+      const isDASH = true; // TODO: get?
+      analyticsAssetName = 'Custom ' + (isClear ? 'Clear ' : 'Protected ') +
+                           (isDASH ? 'DASH' : 'HLS');
+    }
+    return analyticsAssetName;
+  }
+
   /** @private */
   setupPlayer_() {
     const video = /** @type {!HTMLVideoElement} */ (this.video_);
     const ui = video['ui'];
     this.player_ = ui.getControls().getPlayer();
+
+    video.addEventListener('play', () => {
+      this.player_.sendAnalyticsEvent('Player', 'Play',
+          this.getAnalyticsAssetName_());
+    });
+    video.addEventListener('pause', () => {
+      this.player_.sendAnalyticsEvent('Player', 'Pause',
+          this.getAnalyticsAssetName_());
+    });
+    // TODO: rebuffering event can be timing events
 
     if (!this.noInput_) {
       // Don't add the close button if in noInput mode; it doesn't make much
@@ -301,6 +331,7 @@ shakaDemo.Main = class {
     this.player_.configure(
         'manifest.dash.clockSyncUri',
         'https://shaka-player-demo.appspot.com/time.txt');
+    this.player_.configure('enableAnalytics', true);
 
     // Get default config.
     this.defaultConfig_ = this.player_.getConfiguration();
@@ -308,6 +339,7 @@ shakaDemo.Main = class {
     const languages = navigator.languages || ['en-us'];
     this.configure('preferredAudioLanguage', languages[0]);
     this.configure('preferredTextLanguage', languages[0]);
+    this.configure('enableAnalytics', true);
     this.uiLocale_ = languages[0];
     // TODO(#1591): Support multiple language preferences
 
@@ -889,6 +921,7 @@ shakaDemo.Main = class {
     shaka.util.PlayerConfiguration.mergeConfigObjects(
         this.desiredConfig_, asObj, this.defaultConfig_);
     this.player_.configure(config, value);
+    this.setConfigAnalysticsFields_();
   }
 
   /** @return {!shaka.extern.PlayerConfiguration} */
@@ -1019,6 +1052,14 @@ shakaDemo.Main = class {
       this.selectedAsset = asset;
       this.showPlayer_();
 
+      // Send analytics info about asset load.
+      // TODO: Should there be some kind of "event end" once the asset stops
+      // playing? It's weird that, if you play a bunch of assets, the events
+      // pile up... or maybe that's good, because it's tracking the session, so
+      // to speak?
+      this.player_.sendAnalyticsEvent('Demo', 'Play',
+          this.getAnalyticsAssetName_());
+
       // The currently-selected asset changed, so update asset cards.
       this.dispatchEventWithName_('shaka-main-selected-asset-changed');
 
@@ -1081,6 +1122,19 @@ shakaDemo.Main = class {
     this.remakeHash();
   }
 
+  /**
+   * @param {*} currentValue
+   * @param {*} defaultValue
+   * @return {boolean}
+   * @private
+   */
+  paramIsNotDefault_(currentValue, defaultValue) {
+    // NaN != NaN, so there has to be a special check for it to prevent
+    // false positives.
+    const bothAreNaN = isNaN(currentValue) && isNaN(defaultValue);
+    return currentValue != defaultValue && !bothAreNaN;
+  }
+
   /** Remakes the location's hash. */
   remakeHash() {
     if (!this.fullyLoaded_) {
@@ -1096,10 +1150,7 @@ shakaDemo.Main = class {
         const defaultConfig = this.defaultConfig_;
         const defaultValue =
             this.getValueFromGivenConfig_(configName, defaultConfig);
-        // NaN != NaN, so there has to be a special check for it to prevent
-        // false positives.
-        const bothAreNaN = isNaN(currentValue) && isNaN(defaultValue);
-        if (currentValue != defaultValue && !bothAreNaN) {
+        if (this.paramIsNotDefault_(currentValue, defaultValue)) {
           // Don't bother saving in the hash unless it's a non-default value.
           params.push(hashName + '=' + currentValue);
         }
@@ -1272,6 +1323,9 @@ shakaDemo.Main = class {
 
       // Scroll so that the top of the tab is in view.
       container.scrollIntoView({behavior: 'smooth', block: 'start'});
+
+      // Tell analytics what page you are on.
+      this.player_.sendAnalyticsPageView(containerName);
     };
 
     button.addEventListener('click', switchPage);
@@ -1281,6 +1335,32 @@ shakaDemo.Main = class {
     }
 
     return /** @type {!HTMLDivElement} */ (container);
+  }
+
+  /** @private */
+  setConfigAnalysticsFields_() {
+    // TODO: ignore potentially-sensitive config fields, like anything meant to
+    // take in an URL?
+    // TODO: it appears we have to add each metric by hand, so adding a metric
+    // for every single config value is probably going to be infeasable...
+    // especially since they can change silently, if we change the config object
+    // structure...
+    // TODO: also, we would need to have a premium account, to have that many
+    // metrics
+    // TODO: so, if we do go ahead with this, it might be best to have a curated
+    // list of config values to store info on (shaka controls, adaptation
+    // enabled, etc?)
+
+    // const setField = (hashName, configName) => {
+    //   const currentValue = this.getCurrentConfigValue(configName);
+    //   const defaultConfig = this.defaultConfig_;
+    //   const defaultValue =
+    //       this.getValueFromGivenConfig_(configName, defaultConfig);
+    //   if (this.paramIsNotDefault_(currentValue, defaultValue)) {
+    //     ShakaDemoAnalytics.setField(hashName, String(currentValue));
+    //   }
+    // };
+    // shakaDemo.Utils.runThroughHashParams(setField, this.desiredConfig_);
   }
 
   /**

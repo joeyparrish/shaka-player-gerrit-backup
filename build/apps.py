@@ -51,6 +51,9 @@ def compile_demo(force, is_debug):
   # everything else.  If we build that into the output, we will get an
   # infinite loop of scripts adding themselves.
   files.remove(os.path.join(base, 'demo', 'load.js'))
+  # Similarly, analytics.js has to be loaded separately, and thus should not be
+  # compiled in.
+  files.remove(os.path.join(base, 'demo', 'analytics.js'))
   # Remove service_worker.js as well.  This executes in a different context.
   files.remove(os.path.join(base, 'demo', 'service_worker.js'))
   # Don't compile in the uncompiled require file.

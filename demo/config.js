@@ -345,6 +345,8 @@ shakaDemo.Config = class {
       this.latestInput_.input().checked = true;
     }
 
+    this.addBoolInput_('Collect Analytics Data', 'enableAnalytics');
+
     // shaka.log is not set if logging isn't enabled.
     // I.E. if using the release version of shaka.
     if (!shaka['log']) {

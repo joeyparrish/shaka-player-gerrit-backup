@@ -54,6 +54,8 @@
         crossorigin="anonymous"></script>
     <!-- Include IMA SDK to enable client-side ad insertion: -->
     <script type="text/javascript" src="//imasdk.googleapis.com/js/sdkloader/ima3.js"></script>
+    <!-- Google Analytics are enabled by loading analytics.js: -->
+    <script defer src="https://www.google-analytics.com/analytics.js"></script>
 
     <script>
 COMPILED_JS = [
@@ -85,6 +87,8 @@ UNCOMPILED_JS = [
 ];
     </script>
 
+    <!-- Load analytics immediately, before analytics.js loads. -->
+    <script src="analytics.js"></script>
     <!-- Load the compiled or uncompiled version of the code. -->
     <script defer src="load.js"></script>
   </head>
