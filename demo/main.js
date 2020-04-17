@@ -59,6 +59,9 @@ shakaDemo.Main = class {
 
     /** @private {boolean} */
     this.noInput_ = false;
+
+    /** @private {boolean} */
+    this.fakeCast_ = false;
   }
 
   /**
@@ -150,9 +153,10 @@ shakaDemo.Main = class {
       navigator.serviceWorker.register('service_worker.js');
     }
 
-    // Optionally enter noinput mode. This has to happen before setting up the
-    // player.
+    // Save these parameters before setting up the player.
     this.noInput_ = 'noinput' in this.getParams_();
+    this.fakeCast_ = 'fakeCast' in this.getParams_();
+
     await this.setupPlayer_();
     this.readHash_();
     window.addEventListener('hashchange', () => this.hashChanged_());
@@ -174,6 +178,13 @@ shakaDemo.Main = class {
       // Also fullscreen the container.
       this.container_.classList.add('no-input-sized');
       document.getElementById('video-bar').classList.add('no-input-sized');
+    }
+
+    if (goog.DEBUG && this.fakeCast_) {
+      // Enable fake Cast mode.  This will show a fake Cast receiver that
+      // actually uses BroadcastChannel to communicate with the receiver app in
+      // another tab or window of the same browser instance.
+      this.controls_.getCastProxy().enableFakeCastMode();
     }
 
     // The main page is loaded. Dispatch an event, so the various
@@ -1324,6 +1335,10 @@ shakaDemo.Main = class {
 
     if (this.noInput_) {
       params.push('noinput');
+    }
+
+    if (this.fakeCast_) {
+      params.push('fakeCast');
     }
 
     if (this.nativeControlsEnabled_) {

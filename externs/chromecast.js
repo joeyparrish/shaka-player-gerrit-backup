@@ -10,7 +10,7 @@
  */
 
 
-/** @type {function(boolean)} */
+/** @type {function(boolean)?} */
 var __onGCastApiAvailable;
 
 
@@ -26,18 +26,17 @@ cast.receiver = {};
 cast.receiver.system = {};
 
 
-cast.receiver.system.SystemVolumeData = class {
-  constructor() {
-    /** @type {number} */
-    this.level;
-
-    /** @type {boolean} */
-    this.muted;
-  }
-};
+/** @typedef {{level: number, muted: boolean}} */
+cast.receiver.system.SystemVolumeData;
 
 
 cast.receiver.CastMessageBus = class {
+  /** @param {string} namespace */
+  constructor(namespace) {
+    /** @type {function({data: string, senderId: string})} */
+    this.onMessage;
+  }
+
   /** @param {*} message */
   broadcast(message) {}
 
@@ -47,10 +46,6 @@ cast.receiver.CastMessageBus = class {
    */
   getCastChannel(senderId) {}
 };
-
-
-/** @type {Function} */
-cast.receiver.CastMessageBus.prototype.onMessage;
 
 
 /**
@@ -69,6 +64,9 @@ cast.receiver.CastMessageBus.Event.prototype.senderId;
 
 
 cast.receiver.CastChannel = class {
+  /** @param {!BroadcastChannel} channel */
+  constructor(channel) {}
+
   /** @param {*} message */
   send(message) {}
 };
@@ -76,13 +74,13 @@ cast.receiver.CastChannel = class {
 
 cast.receiver.CastReceiverManager = class {
   constructor() {
-    /** @type {Function} */
+    /** @type {function()} */
     this.onSenderConnected;
 
-    /** @type {Function} */
+    /** @type {function()} */
     this.onSenderDisconnected;
 
-    /** @type {Function} */
+    /** @type {function()} */
     this.onSystemVolumeChanged;
   }
 
@@ -109,7 +107,7 @@ cast.receiver.CastReceiverManager = class {
   /** @param {number} level */
   setSystemVolumeLevel(level) {}
 
-  /** @param {number} muted */
+  /** @param {boolean} muted */
   setSystemVolumeMuted(muted) {}
 
   /** @return {boolean} */
@@ -134,15 +132,15 @@ var chrome = {};
 /** @const */
 chrome.cast = class {
   /**
-   * @param {chrome.cast.ApiConfig} apiConfig
-   * @param {Function} successCallback
-   * @param {Function} errorCallback
+   * @param {!chrome.cast.ApiConfig} apiConfig
+   * @param {function()} successCallback
+   * @param {function(?)} errorCallback
    */
   static initialize(apiConfig, successCallback, errorCallback) {}
 
   /**
-   * @param {Function} successCallback
-   * @param {Function} errorCallback
+   * @param {function(!chrome.cast.Session)} successCallback
+   * @param {function(?)} errorCallback
    * @param {chrome.cast.SessionRequest=} sessionRequest
    */
   static requestSession(successCallback, errorCallback, sessionRequest) {}
@@ -153,24 +151,30 @@ chrome.cast = class {
 chrome.cast.isAvailable;
 
 
-/** @const */
-chrome.cast.SessionStatus = {};
-
-
-/** @type {string} */
-chrome.cast.SessionStatus.STOPPED;
+/** @enum {string} */
+chrome.cast.SessionStatus = {
+  CONNECTED: 'connected',
+  DISCONNECTED: 'disconnected',
+  STOPPED: 'stopped',
+};
 
 
 chrome.cast.ApiConfig = class {
   /**
    * @param {chrome.cast.SessionRequest} sessionRequest
-   * @param {Function} sessionListener
-   * @param {Function} receiverListener
+   * @param {function(!chrome.cast.Session)} sessionListener
+   * @param {function(string)} receiverListener
    * @param {string=} autoJoinPolicy
    * @param {string=} defaultActionPolicy
    */
   constructor(sessionRequest, sessionListener, receiverListener,
-      autoJoinPolicy, defaultActionPolicy) {}
+      autoJoinPolicy, defaultActionPolicy) {
+    /** @type {function(!chrome.cast.Session)} */
+    this.sessionListener;
+
+    /** @type {function(string)} */
+    this.receiverListener;
+  }
 };
 
 
@@ -193,13 +197,8 @@ chrome.cast.Error = class {
 };
 
 
-chrome.cast.Receiver = class {
-  constructor() {}
-};
-
-
-/** @const {string} */
-chrome.cast.Receiver.prototype.friendlyName;
+/** @typedef {{friendlyName: string}} */
+chrome.cast.Receiver;
 
 
 chrome.cast.Session = class {
@@ -216,39 +215,39 @@ chrome.cast.Session = class {
 
   /**
    * @param {string} namespace
-   * @param {Function} listener
+   * @param {function(string, string)} listener
    */
   addMessageListener(namespace, listener) {}
 
   /**
    * @param {string} namespace
-   * @param {Function} listener
+   * @param {function(string, string)} listener
    */
   removeMessageListener(namespace, listener) {}
 
-  /** @param {Function} listener */
+  /** @param {function()} listener */
   addUpdateListener(listener) {}
 
-  /** @param {Function} listener */
+  /** @param {function()} listener */
   removeUpdateListener(listener) {}
 
   /**
-   * @param {Function} successCallback
-   * @param {Function} errorCallback
+   * @param {function()} successCallback
+   * @param {function(?)} errorCallback
    */
   leave(successCallback, errorCallback) {}
 
   /**
    * @param {string} namespace
    * @param {!Object|string} message
-   * @param {Function} successCallback
-   * @param {Function} errorCallback
+   * @param {function()} successCallback
+   * @param {function(?)} errorCallback
    */
   sendMessage(namespace, message, successCallback, errorCallback) {}
 
   /**
-   * @param {Function} successCallback
-   * @param {Function} errorCallback
+   * @param {function()} successCallback
+   * @param {function(?)} errorCallback
    */
   stop(successCallback, errorCallback) {}
 };

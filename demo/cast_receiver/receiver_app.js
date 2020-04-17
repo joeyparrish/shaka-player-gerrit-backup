@@ -66,9 +66,13 @@ class ShakaReceiverApp {
 
     this.idleCard_ = document.getElementById('idle');
 
+    const fakeCastMode = location.hash.includes(';fakeCast');
+
     this.receiver_ = new shaka.cast.CastReceiver(
         this.video_, this.player_,
-        (appData) => this.appDataCallback_(appData));
+        (appData) => this.appDataCallback_(appData),
+        /* contentIdCallback= */ undefined,
+        fakeCastMode);
     this.receiver_.addEventListener(
         'caststatuschanged', () => this.checkIdle_());
 
