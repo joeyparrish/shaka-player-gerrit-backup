@@ -5,9 +5,18 @@
  */
 
 (function() {
-  // This is "window" in browsers and "global" in nodejs.
-  // See https://github.com/google/shaka-player/issues/1445
-  var innerGlobal = typeof window != 'undefined' ? window : global;
+  var innerGlobal;
+  if (typeof window != 'undefined') {
+    // This is the default state, seen in browsers.
+    innerGlobal = window;
+  } else if (typeof global != 'undefined') {
+    // This is what is used in nodejs.
+    // See https://github.com/google/shaka-player/issues/1445
+    innerGlobal = global;
+  } else if (typeof self != 'undefined') {
+    // This is for when the player is loaded in a service worker.
+    innerGlobal = self;
+  }
 
   // This is where our library exports things to.  It is "this" in the wrapped
   // code.  With this, we can decide later what module loader we are in, if any,

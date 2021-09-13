@@ -75,7 +75,7 @@ background fetch call. The service worker will then, after everything is
 downloaded and stored, call assignStreamsToManifest.  An estimate of the total
 download size will need to be computed here, and padded to avoid premature
 cancellation for inaccurate manifests.
-1. Create a new public static method, assignStreamToManifest. This is a static
+1. Create a new public static method, assignStreamsToManifest. This is a static
 method that requires no internal state, so that the service worker can call it.
 It stores the data provided, loads the manifest from storage, applies the
 storage id of the data to the appropriate segments (based on uri), and then
@@ -115,7 +115,7 @@ operation.
    1. When handling background fetch-related events, we can simply ignore any
    event that does not start with the prefix. This will help prevent any
    contamination with other service worker code from the developer.
-1. As each segment is downloaded, the assignStreamToManifest method should be
+1. As each segment is downloaded, the assignStreamsToManifest method should be
 called to store that data in the manifest.
 1. If the download is canceled, call the cleanStoredManifest method, so that the
 player doesn’t pollute indexedDb with unused segment data.
