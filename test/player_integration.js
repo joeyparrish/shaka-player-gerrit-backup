@@ -48,8 +48,8 @@ describe('Player', () => {
 
   beforeEach(async () => {
     await shaka.test.TestScheme.createManifests(compiledShaka, '_compiled');
-    player = new compiledShaka.Player(video);
-
+    // player = new compiledShaka.Player(video);
+    player = new shaka.Player(video);
     // Grab event manager from the uncompiled library:
     eventManager = new shaka.util.EventManager();
     waiter = new shaka.test.Waiter(eventManager);
@@ -794,6 +794,41 @@ describe('Player', () => {
       player.configure('streaming.bufferingGoal', 40);
       await waitUntilBuffered(40);
       expect(getBufferedBehind()).toBeLessThanOrEqual(10);
+    });
+
+    it('switch variants', async () => {
+      player.configure('abr.enabled', false);
+      const uri =
+          'https://storage.googleapis.com/shaka-demo-assets/lots-of-segments/48-hours.mpd';
+      await player.load(uri);
+      const tracks = player.getVariantTracks();
+      player.selectVariantTrack(tracks[0]);
+
+      video.play();
+      await waiter.timeoutAfter(10).waitForMovement(video);
+
+      if (window.gc) {
+        console.log('force gc');
+        await window.gc();
+      }
+
+      const before = performance.memory.usedJSHeapSize / Math.pow(1000, 2);
+      const currentTime = video.currentTime;
+
+      for (let i = 1; i < tracks.length; i++) {
+        const track = tracks[i];
+        player.selectVariantTrack(track);
+        await waiter.timeoutAfter(65).waitUntilPlayheadReaches(
+            video, currentTime+60*i);
+      }
+
+      if (window.gc) {
+        console.log('force gc');
+        await window.gc();
+      }
+      const after = performance.memory.usedJSHeapSize / Math.pow(1000, 2);
+      console.log('before', before, 'mb, after', after, 'mb', 'used',
+          after - before, 'mb');
     });
 
     function getBufferedAhead() {
